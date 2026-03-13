@@ -1,24 +1,25 @@
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.kotlin.dsl.*
+
 plugins {
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    kotlin("android")
+    id("maven-publish")
+    id("signing")
 }
 
 android {
-    namespace = "com.pop.round_border_image"
-    compileSdk = 34
+    namespace = "com.pop.info.roundborder"
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 28
-        consumerProguardFiles("consumer-rules.pro")
+        version = "1.0.0"
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
         }
     }
 
@@ -30,25 +31,53 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+}
+dependencies {
+    implementation(libs.androidx.core)
+    implementation(libs.androidx.camera.video)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.activity.ktx)
+}
 
-    buildFeatures {
-        compose = true
-    }
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            groupId = "com.pop.info"
+            artifactId = "round-border-image"
+            version = "1.0.0"
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
+            afterEvaluate {
+                from(components["release"])
+            }
+
+            pom {
+                name.set("Round Border Image")
+                description.set("- - -")
+                url.set("https://github.com/seuusuario/round-border-image")
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("lan-sen")
+                        name.set("Lan Sen")
+                        email.set("moreiradeveloper2016@gmail.com")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git://github.com/seuusuario/round-border-image.git")
+                    developerConnection.set("scm:git:ssh://github.com/seuusuario/round-border-image.git")
+                    url.set("https://github.com/seuusuario/round-border-image")
+                }
+            }
+        }
     }
 }
 
-dependencies {
-
-    implementation(platform("androidx.compose:compose-bom:2024.02.00"))
-
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-
-    implementation("androidx.compose.material3:material3")
-
-    implementation("androidx.activity:activity-compose:1.8.2")
+signing {
+    useGpgCmd()
+    sign(publishing.publications["mavenJava"])
 }
